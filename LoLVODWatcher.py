@@ -28,11 +28,14 @@ except NoSuchElementException:
 	print('Cannot find login button')
 
 hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.VodsList > a")]
-print(len(hrefs))
+#print(len(hrefs))
 
-for href in hrefs:
-	browser.get(href)
-	time.sleep(randint(615, 678))
+for i in range(len(hrefs)):
+	browser.get(hrefs[i])
+	print(f"You're watching VOD number: {i+1}")
+	t = randint(615, 678)
+	print(f"Switching in {t} seconds")
+	time.sleep(t)
 
 browser.quit()
 print(f"You've watched {len(hrefs)} VODs")
