@@ -3,39 +3,87 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
+#from selenium.webdriver.common.action_chains import ActionChains
 import configparser
 import os
 import time
 from random import randint
 
-url = "https://watch.na.lolesports.com/vods/worlds/world_championship_2018"
-loginURL = "https://auth.riotgames.com/authorize?client_id=rso-web-client-prod&redirect_uri=https%3A%2F%2Flogin.lolesports.com%2Foauth2-callback&scope=openid&response_type=code&state=lSbnyQxa5MHhB0beuFRuDz6cNgeoLCOJimJVDK3QRxM&ui_locales=en-us&login_hint=na"
-mozilla_profile = os.path.join(os.getenv('APPDATA'), r'Mozilla\Firefox')
-mozilla_profile_ini = os.path.join(mozilla_profile, r'profiles.ini')
-profile = configparser.ConfigParser()
-profile.read(mozilla_profile_ini)
-data_path = os.path.normpath(os.path.join(mozilla_profile, profile.get('Profile0', 'Path')))
-# print(data_path)
-fp = webdriver.FirefoxProfile(data_path)
-browser = webdriver.Firefox(fp)
+def watchVOD(t=600, multi=1):
+	url = "https://watch.na.lolesports.com/vods/worlds/world_championship_2018"
+	# mozilla_profile = os.path.join(os.getenv('APPDATA'), r'Mozilla\Firefox')
+	# mozilla_profile_ini = os.path.join(mozilla_profile, r'profiles.ini')
+	# profile = configparser.ConfigParser()
+	# profile.read(mozilla_profile_ini)
+	# data_path = os.path.normpath(os.path.join(mozilla_profile, profile.get('Profile0', 'Path')))
+	# # print(data_path)
+	# fp = webdriver.FirefoxProfile(data_path)
+	# browser = webdriver.Firefox(fp)
 
-browser.get(url)
-element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, "html body.riotbar-present div main.Vods div.list div.VodsList")))
-try:
-	browser.find_element_by_css_selector('a.riotbar-anonymous-link:nth-child(2)').click()
+	browser = webdriver.Chrome()
+
+	browser.get(url)
 	element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, "html body.riotbar-present div main.Vods div.list div.VodsList")))
-except NoSuchElementException:
-	print('Cannot find login button')
+	try:
+	  browser.find_element_by_css_selector('a.riotbar-anonymous-link:nth-child(2)').click()
+	  element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, "html body.riotbar-present div main.Vods div.list div.VodsList")))
+	except NoSuchElementException:
+	  print('Cannot find login button')
 
-hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.VodsList > a")]
-#print(len(hrefs))
+	hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.VodsList > a")]
+	#print(len(hrefs))
 
-for i in range(len(hrefs)):
-	browser.get(hrefs[i])
-	print(f"You're watching VOD number: {i+1}")
-	t = randint(615, 678)
-	print(f"Switching in {t} seconds")
-	time.sleep(t)
+	t = randint(t*60, t*60+99)
+	m = 0
+	for i in range(0,len(hrefs)):
+		while i < len(hrefs) and m < multi:
+			browser.execute_script(f"window.open('{hrefs[i]}');")
+			#element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.ID, "video-player-placeholder")))
+			if i == 0:
+				print("Mute and change resolution to 144p")
+				time.sleep(10)
+			browser.switch_to_window(browser.window_handles[-1])
+			#browser.get(hrefs[i])
+			print(f"You're watching VOD number: {i+1}")
+			print(f"Switching in {t} seconds")
+			i += 1
+			m += 1
+		time.sleep(t)
+		for x in range(multi):
+			browser.close()
+			browser.switch_to.window(browser.window_handles[-1])
+			
+		browser.switch_to.window(browser.window_handles[0])
+		m = 0
 
-browser.quit()
-print(f"You've watched {len(hrefs)} VODs")
+	browser.quit()
+	print(f"You've watched {len(hrefs)} VODs")
+
+def main():
+	while True:
+		t = input("How long do you want to watch each VOD: (10 minutes minimum) ")
+		if not t.isdigit():
+			print("Sorry, your response must be a number.")
+			continue
+		elif int(t) < 10:
+			print("Sorry, your response must be greater than 10 minutes.")
+			continue
+		else:
+			break
+
+	while True:
+		multi = input("How many VODs do you want to watch simultaneously? ")
+		if not multi.isdigit():
+			print("Sorry, your response must be a number.")
+			continue
+		elif int(multi) < 1:
+			print("Sorry, your response must greater than zero.")
+			continue
+		else:
+			break
+
+	watchVOD(int(t), int(multi))
+
+if __name__ == "__main__":
+	main()
