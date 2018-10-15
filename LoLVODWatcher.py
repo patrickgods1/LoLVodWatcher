@@ -40,6 +40,7 @@ def watchVOD(t=600, multi=1):
 	#for i in range(0,len(hrefs)):
 	#while i < len(hrefs) and m < multi:
 	while i < len(hrefs):
+		t = randint(tLower, tUpper)
 		while m < multi and i < len(hrefs):
 			browser.execute_script(f"window.open('{hrefs[i]}');")
 			#time.sleep(5)
@@ -57,7 +58,7 @@ def watchVOD(t=600, multi=1):
 			print(f"Switching in {t} seconds")
 			i += 1
 			m += 1
-		time.sleep(randint(tLower, tUpper))
+		time.sleep(t)
 		for num in range(multi):
 			browser.close()
 			browser.switch_to.window(browser.window_handles[-1])
@@ -73,9 +74,9 @@ def main():
 		if not t.isdigit():
 			print("Sorry, your response must be a number.")
 			continue
-		# elif int(t) < 10:
-		# 	print("Sorry, your response must be greater than 10 minutes.")
-		# 	continue
+		elif int(t) < 10:
+			print("Sorry, your response must be greater than 10 minutes.")
+			continue
 		else:
 			break
 
