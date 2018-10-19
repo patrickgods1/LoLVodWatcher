@@ -4,23 +4,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-#from selenium.webdriver.common.action_chains import ActionChains
-import configparser
-import os
-import time
+from selenium.webdriver.common.action_chains import ActionChains
+import os, time
 from random import randint
 
 def watchVOD(t=600, multi=1):
 	url = "https://watch.na.lolesports.com/vods/worlds/world_championship_2018"
-	# mozilla_profile = os.path.join(os.getenv('APPDATA'), r'Mozilla\Firefox')
-	# mozilla_profile_ini = os.path.join(mozilla_profile, r'profiles.ini')
-	# profile = configparser.ConfigParser()
-	# profile.read(mozilla_profile_ini)
-	# data_path = os.path.normpath(os.path.join(mozilla_profile, profile.get('Profile0', 'Path')))
-	# # print(data_path)
-	# fp = webdriver.FirefoxProfile(data_path)
-	# browser = webdriver.Firefox(fp)
-
 	browser = webdriver.Chrome()
 
 	browser.get(url)
@@ -32,28 +21,25 @@ def watchVOD(t=600, multi=1):
 	  print('Cannot find login button')
 
 	hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.VodsList > a")]
-	#print(len(hrefs))
 	tLower = t*60 + 5
 	tUpper = t*60 + 99
 	m = 0
 	i = 0
-	#for i in range(0,len(hrefs)):
-	#while i < len(hrefs) and m < multi:
 	while i < len(hrefs):
 		t = randint(tLower, tUpper)
 		while m < multi and i < len(hrefs):
 			browser.execute_script(f"window.open('{hrefs[i]}');")
-			#time.sleep(5)
 			text = 'WATCH REWARDS ARE CORRECTLY SET UP FOR YOUR ACCOUNT'
-			# WATCH REWARDS ARE CORRECTLY SET UP FOR YOUR ACCOUNT
-			#element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.XPATH, '//*[contains(@class, content")]')))
-			#elem = browser.find_element_by_xpath('//*[contains(@class, "content")]')
-			if i == 0:
-				print("Mute and change resolution to 144p")
-				time.sleep(5)
 			browser.switch_to_window(browser.window_handles[-1])
 			element = WebDriverWait(browser, 100).until(EC.visibility_of_element_located((By.XPATH, '//*[contains(@class, "content")]')))
-			#browser.get(hrefs[i])
+			browser.switch_to.frame("video-player-youtube")
+			if i == 0:
+				WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@title="Mute"]'))).click()
+			WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@class="ytp-button ytp-settings-button"]'))).click()
+			actions = ActionChains(browser) 
+			actions.send_keys(Keys.ARROW_RIGHT, Keys.ARROW_DOWN * 3,Keys.ENTER)
+			actions.send_keys(Keys.ARROW_DOWN * 2, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
+			actions.perform()
 			print(f"You're watching VOD number: {i+1}")
 			print(f"Switching in {t} seconds")
 			i += 1
@@ -62,7 +48,6 @@ def watchVOD(t=600, multi=1):
 		for num in range(multi):
 			browser.close()
 			browser.switch_to.window(browser.window_handles[-1])
-		#browser.switch_to.window(browser.window_handles[0])
 		m = 0
 
 	browser.quit()
