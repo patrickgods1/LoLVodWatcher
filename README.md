@@ -1,6 +1,6 @@
 # LoLVODWatcher
 
-Used for watching 2018 League of Legends World Championship VODs to complete missions. The script can watch multiple videos simulatenously via multiple tabs. The script can:
+Used for watching League of Legends VODs to complete missions. The script can watch multiple videos simulatenously via multiple tabs. The script can also do the following:
 * Mute the sound
 * Lower video quality to save bandwidth
 * Change the playback speed to 2x.
