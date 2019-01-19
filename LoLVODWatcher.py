@@ -17,11 +17,11 @@ def watchVOD(url, t=600, multi=1):
 
     browser.get(url)
     element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, "html body.riotbar-present div main.Vods div.list div.VodsList")))
-    # try:
-    #     browser.find_element_by_css_selector('a.riotbar-anonymous-link:nth-child(2)').click()
-    #     element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, "html body.riotbar-present div main.Vods div.list div.VodsList")))
-    # except NoSuchElementException:
-    #     print('Cannot find login button')
+    try:
+        browser.find_element_by_css_selector('a.riotbar-anonymous-link:nth-child(2)').click()
+        element = WebDriverWait(browser, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, "html body.riotbar-present div main.Vods div.list div.VodsList")))
+    except NoSuchElementException:
+        print('Cannot find login button')
 
     hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.VodsList > a")]
     tLower = t * 60 + 5
