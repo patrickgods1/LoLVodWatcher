@@ -4,6 +4,7 @@ Used for watching 2018 League of Legends World Championship VODs to complete mis
 * Mute the sound
 * Lower video quality to save bandwidth
 * Change the playback speed to 2x.
+* Allows user to input desired VOD URL.
 
 ## Getting Started
 These instructions will help you get started with using the application.
