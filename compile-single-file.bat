@@ -1,2 +1,3 @@
-pyinstaller -F --onefile .\LoLVODWatcher.py
+REM pyinstaller -F --onefile .\LoLVODWatcher.py
+pyinstaller -F --onefile .\LoLVODWatcher.spec
 pause
