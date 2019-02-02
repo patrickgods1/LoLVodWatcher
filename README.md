@@ -3,7 +3,6 @@
 Used for watching League of Legends VODs to complete missions. The script can watch multiple videos simulatenously via multiple tabs. The script can also do the following:
 * Mute the sound
 * Lower video quality to save bandwidth
-* Change the playback speed to 2x.
 * Allows user to input desired VOD URL.
 
 ## Getting Started
