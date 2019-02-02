@@ -23,7 +23,7 @@ def watchVOD(url, t=600, multi=1):
     except NoSuchElementException:
         print('Cannot find login button')
 
-    hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.VodsList > a")]
+    hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_class_name("wrapper")]
     tLower = t * 60 + 5
     tUpper = t * 60 + 99
     m = 0
@@ -41,7 +41,7 @@ def watchVOD(url, t=600, multi=1):
             WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@class="ytp-button ytp-settings-button"]'))).click()
             actions = ActionChains(browser)
             time.sleep(0.2)
-            actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ARROW_UP * 2, Keys.ENTER, Keys.ARROW_DOWN * 4, Keys.ENTER)
+            # actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ARROW_UP * 1, Keys.ENTER, Keys.ARROW_DOWN * 4, Keys.ENTER)
             actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
             actions.perform()
             print(f"You're watching VOD number: {i+1}")
