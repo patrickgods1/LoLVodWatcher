@@ -30,7 +30,7 @@ def watchVOD(url, t=600, multi=1):
         print('Timed out waiting to be logged in. Exiting.')
         return 0
 
-    hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_class_name('wrapper')]
+    hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_class_name('game')]
     tLower = t * 60 + 5
     tUpper = t * 60 + 88
     m = 0
@@ -64,8 +64,8 @@ def watchVOD(url, t=600, multi=1):
                 actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
                 actions.perform()
             except TimeoutException:
-                    print(f'Timed out waiting for settings button. Continuing.')  
-            
+                print(f'Timed out waiting for settings button. Continuing.')
+
             print(f'You are watching VOD number: {i+1}')
             print(f'Switching in {t} seconds')
             i += 1
@@ -104,11 +104,11 @@ def main():
             break
 
     url = input(f'URL to VODs page: ')
-    if 'https://watch.na.lolesports.com/vods/' in url:
+    if 'https://watch.lolesports.com/vods/' in url:
         watchVOD(url, int(t), int(multi))
     else:
-        print(f"Invalid URL. Defaulting to 'https://watch.na.lolesports.com/vods/cblol-brazil/cblol_2019_split1'")
-        watchVOD(f'https://watch.na.lolesports.com/vods/cblol-brazil/cblol_2019_split1', int(t), int(multi))
+        print(f"Invalid URL. Defaulting to 'https://watch.lolesports.com/vods/lec/lec_2020_split1'")
+        watchVOD(f'https://watch.lolesports.com/vods', int(t), int(multi))
 
 
 if __name__ == "__main__":
