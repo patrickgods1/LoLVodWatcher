@@ -82,14 +82,13 @@ def watchVOD(url, t=600, multi=1):
                 except TimeoutException:
                     print(f'[ERROR] Timed out waiting for mute button. Continuing.')
             try:
-                
                 # WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@class="ytp-button ytp-settings-button"]'))).click()
                 WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Settings"]'))).click()
                 actions = ActionChains(browser)
-                # time.sleep(0.3)
                 time.sleep(0.1)
-                # actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
-                actions.send_keys(Keys.ARROW_UP * 5, Keys.ENTER, Keys.ARROW_DOWN * 7, Keys.ENTER, Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
+                actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
+                # 2x playback speed
+                # actions.send_keys(Keys.ARROW_UP * 5, Keys.ENTER, Keys.ARROW_DOWN * 7, Keys.ENTER, Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
                 actions.perform()
             except TimeoutException:
                 print(f'[ERROR] Timed out waiting for settings button. Continuing.')
@@ -118,11 +117,11 @@ def watchVOD(url, t=600, multi=1):
 
 def main():
     while True:
-        t = input(f'How long do you want to watch each VOD: (5 minutes minimum) ')
+        t = input(f'How long do you want to watch each VOD: (10 minutes minimum) ')
         if not t.isdigit():
             print(f'[ERROR] Response must be a number.')
             continue
-        elif int(t) < 5:
+        elif int(t) < 10:
             print(f'[ERROR] Response must be greater than 5 minutes.')
             continue
         else:
