@@ -12,13 +12,9 @@ from random import randint
 
 
 def watchVOD(url, t=600, multi=1):
-    # options = webdriver.ChromeOptions()
-    # options.add_argument("--start-maximized")
-    # options.add_argument('window-size=1920,1080')
-    # browser = webdriver.Chrome(chrome_options=options)
     browser = webdriver.Chrome()
-
     browser.get('https://watch.lolesports.com/vods/')
+
     try:
         WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//a[@class="riotbar-anonymous-link riotbar-account-action"]'))).click()
     except TimeoutException:
@@ -40,7 +36,7 @@ def watchVOD(url, t=600, multi=1):
         for league in browser.find_elements_by_css_selector('ul.leagues > li.league > div.info'):
             try:
                 browser.execute_script("arguments[0].click();", league)
-                WebDriverWait(browser, 2).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.games > a.game')))
+                WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.games > a.game')))
                 if browser.current_url in skip:
                     print(f'[Skipped] {browser.current_url} is ineligible for watch rewards.')
                     continue
@@ -51,6 +47,7 @@ def watchVOD(url, t=600, multi=1):
     else:
         hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.games > a.game:not(.watched)")]
     print(f'[INFO] Found {len(hrefs)} links to watch.')
+    
     tLower = t * 60 + 5
     tUpper = t * 60 + 88
     m = 0
@@ -72,7 +69,6 @@ def watchVOD(url, t=600, multi=1):
             browser.switch_to.frame('video-player-youtube')
             if firstVid:
                 try:
-                    # WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@class="ytp-large-play-button ytp-button"]'))).click()
                     WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Play"]'))).click()
                 except TimeoutException:
                     print(f'[ERROR] Timed out waiting to click play button. Continuing.')
@@ -82,7 +78,6 @@ def watchVOD(url, t=600, multi=1):
                 except TimeoutException:
                     print(f'[ERROR] Timed out waiting for mute button. Continuing.')
             try:
-                # WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//button[@class="ytp-button ytp-settings-button"]'))).click()
                 WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Settings"]'))).click()
                 actions = ActionChains(browser)
                 time.sleep(0.1)
@@ -105,6 +100,7 @@ def watchVOD(url, t=600, multi=1):
             print(f'[INFO] Switching in {t} seconds')
             i += 1
             m += 1
+
         time.sleep(t)
         for _ in range(multi):
             browser.close()
