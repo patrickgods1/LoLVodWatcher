@@ -12,7 +12,11 @@ from random import randint
 
 
 def watchVOD(url, t=600, multi=1):
-    browser = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
+    browser = webdriver.Chrome(chrome_options=options)
+    
     browser.get('https://watch.lolesports.com/vods/')
 
     try:
@@ -32,15 +36,19 @@ def watchVOD(url, t=600, multi=1):
         return 0
     if not url:
         hrefs = []
-        skip = ['https://watch.lolesports.com/vods/lcs-academy/na_academy_2020_split1']
+        skip = ['https://watch.lolesports.com/vods/lcs-academy/na_academy_2020_split1',
+                'https://watch.lolesports.com/vods/lck/lck_2020_split1',
+                'https://watch.lolesports.com/vods/lpl/lpl_2020_split1',
+                'https://watch.lolesports.com/vods/worlds/world_championship_2019']
         for league in browser.find_elements_by_css_selector('ul.leagues > li.league > div.info'):
             try:
                 browser.execute_script("arguments[0].click();", league)
-                WebDriverWait(browser, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.games > a.game')))
+                WebDriverWait(browser, 2).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.games > a.game')))
                 if browser.current_url in skip:
                     print(f'[Skipped] {browser.current_url} is ineligible for watch rewards.')
                     continue
-                hrefs = hrefs + [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector(".game.watch-annotated:not(.watched)")]
+                # hrefs = hrefs + [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("a.game.watch-annotated:not(.watched)")]
+                hrefs = hrefs + [elm.get_attribute('href') for elm in browser.find_elements_by_xpath("//a[contains(@class, 'game') and not(contains(@class, 'watched'))]")]
             except TimeoutException:
                 print(f'[ERROR] No links found on {browser.current_url}')
                 continue
