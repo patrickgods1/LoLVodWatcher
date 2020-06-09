@@ -39,7 +39,10 @@ def watchVOD(url, t=600, multi=1):
         skip = ['https://watch.lolesports.com/vods/lcs-academy/na_academy_2020_split1',
                 'https://watch.lolesports.com/vods/lck/lck_2020_split1',
                 'https://watch.lolesports.com/vods/lpl/lpl_2020_split1',
-                'https://watch.lolesports.com/vods/worlds/world_championship_2019']
+                'https://watch.lolesports.com/vods/worlds/world_championship_2019',
+                'https://watch.lolesports.com/vods/all-star/all_star_2019',
+                'https://watch.lolesports.com/vods/midseason-cup/midseason_cup_2020',
+                'https://watch.lolesports.com/vods/midseason-streamathon/midseason_streamathon_2020']
         for league in browser.find_elements_by_css_selector('ul.leagues > li.league > div.info'):
             try:
                 browser.execute_script("arguments[0].click();", league)
@@ -53,7 +56,13 @@ def watchVOD(url, t=600, multi=1):
                 print(f'[ERROR] No links found on {browser.current_url}')
                 continue
     else:
+        try:
+            browser.get(url)
+            WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.games > a.game')))
+        except TimeoutException:
+            print('[ERROR] VOD page did not load. Exiting.')
         hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_css_selector("div.games > a.game:not(.watched)")]
+        # hrefs = [elm.get_attribute('href') for elm in browser.find_elements_by_xpath("//a[contains(@class, 'game') and not(contains(@class, 'watched'))]")]
     print(f'[INFO] Found {len(hrefs)} links to watch.')
     
     tLower = t * 60 + 5
@@ -61,6 +70,7 @@ def watchVOD(url, t=600, multi=1):
     m = 0
     i = 0
     firstVid = True
+    watchCount = 0
     while i < len(hrefs):
         t = randint(tLower, tUpper)
         while m < multi and i < len(hrefs):
@@ -108,15 +118,19 @@ def watchVOD(url, t=600, multi=1):
             print(f'[INFO] Switching in {t} seconds')
             i += 1
             m += 1
+            watchCount += 1
 
-        time.sleep(t)
-        for _ in range(multi):
+        if m == 0:
+            print(f'[ERROR] Ran out of videos to play.')
+        else:
+            time.sleep(t)
+        for _ in range(m):
             browser.close()
             browser.switch_to.window(browser.window_handles[-1])
         m = 0
 
     browser.quit()
-    print(f'[INFO] You have watched {len(hrefs)} VODs')
+    print(f'[INFO] You have watched {watchCount} VODs')
 
 
 def main():
