@@ -5,7 +5,7 @@ block_cipher = None
 
 a = Analysis(['LoLVODWatcher.py'],
              pathex=[],
-             binaries=[('chromedriver.exe', '.')],
+             binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
@@ -21,9 +21,13 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='LoLVODWatcher v0.7',
+          name='LoLVODWatcher v0.9',
           debug=False,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
           console=True )
+
+import shutil
+shutil.copyfile('config.ini', f'{DISTPATH}/config.ini')
+shutil.copyfile('chromedriver.exe', f'{DISTPATH}/chromedriver.exe')
