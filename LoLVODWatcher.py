@@ -142,7 +142,17 @@ def watchVOD(userConfig):
                 print(f'[ERROR] Timed out waiting for settings button. Continuing.')
             try:
                 browser.switch_to_default_content()
-                WebDriverWait(browser, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, 'content')))
+                # WebDriverWait(browser, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, 'content')))
+                WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.RewardsStatusInformer'))).click()
+                rewardStatus = browser.find_element_by_css_selector('div.status > div.message')
+                if rewardStatus.text.lower() == 'this game is not eligible for watch rewards':
+                    printTime()
+                    print(f'[Skipped] {hrefs[i]} is ineligible for watch rewards.')
+                    ineligibleList.append(hrefs[i])
+                    browser.close()
+                    browser.switch_to.window(browser.window_handles[-1])
+                    i += 1
+                    continue
             except TimeoutException:
                 printTime()
                 print(f'[Skipped] {hrefs[i]} is ineligible for watch rewards.')
