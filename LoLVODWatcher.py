@@ -24,7 +24,7 @@ def watchVOD(userConfig):
 
     try:
         # WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html body.riotbar-present div main.Vods div.list div.VodsList')))
-        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'html body.riotbar-present div main.Vods div.list div.VodsList')))
+        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.VodsList')))
     except TimeoutException:
         printTime()
         print('[ERROR] VOD page did not load. Exiting.')
@@ -55,7 +55,8 @@ def watchVOD(userConfig):
         print('[ERROR] Timed out waiting to be logged in. Exiting.')
         return 0
     try:
-        WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'ul.leagues > li.league > div.info')))
+        WebDriverWait(browser, 1000).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'ul.leagues > li.league > button.info.button')))
+        
     except TimeoutException:
         printTime()
         print('[ERROR] VOD page did not load. Exiting.')
@@ -65,7 +66,7 @@ def watchVOD(userConfig):
         hrefs = []
         skipRegionsList = [link.strip() for link in userConfig.get('Skip Regions List').split(',') if link]
 
-        for league in browser.find_elements_by_css_selector('ul.leagues > li.league > div.info'):
+        for league in browser.find_elements_by_css_selector('ul.leagues > li.league > button.info.button'):
             try:
                 browser.execute_script("arguments[0].click();", league)
                 WebDriverWait(browser, 2).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.games > a.game')))
@@ -106,8 +107,12 @@ def watchVOD(userConfig):
         while m < userConfig.getint('Batch Size') and i < len(hrefs):
             browser.execute_script(f"window.open('{hrefs[i]}');")
             browser.switch_to_window(browser.window_handles[-1])
+            browser.switch_to_default_content()
             try:
-                WebDriverWait(browser, 1).until(EC.visibility_of_element_located((By.ID, 'video-player')))
+                WebDriverWait(browser, 100).until(EC.frame_to_be_available_and_switch_to_it((By.ID, 'video-player-youtube')))
+                # iframe = browser.find_element_by_id('video-player-youtube')
+                # browser.switch_to.frame(iframe)
+                # browser.switch_to.frame('video-player-youtube')
             except TimeoutException:
                 printTime()
                 print(f'[ERROR] Timed out waiting for video player to load: {hrefs[i]}')
@@ -116,7 +121,6 @@ def watchVOD(userConfig):
                 browser.switch_to.window(browser.window_handles[-1])
                 i += 1
                 continue
-            browser.switch_to.frame('video-player-youtube')
             if firstVid:
                 try:
                     WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Play"]'))).click()
