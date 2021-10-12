@@ -2,8 +2,7 @@ import configparser
 import os
 from random import randint
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -16,10 +15,14 @@ def printTime():
 
 
 def watchVOD(userConfig):
-    options = webdriver.ChromeOptions()
-    prefs = {"profile.managed_default_content_settings.images": 2}
-    options.add_experimental_option("prefs", prefs)
-    browser = webdriver.Chrome(chrome_options=options)
+    if userConfig.get('Browser').lower() == 'chrome':
+        options = webdriver.ChromeOptions()
+        prefs = {"profile.managed_default_content_settings.images": 2}
+        options.add_experimental_option("prefs", prefs)
+        browser = webdriver.Chrome(chrome_options=options)
+    else:
+       browser = webdriver.Firefox()
+
     browser.get('https://watch.lolesports.com/vods/')
 
     try:
@@ -30,15 +33,18 @@ def watchVOD(userConfig):
         print('[ERROR] VOD page did not load. Exiting.')
         return 0
     try:
-        loginButton = browser.find_element_by_css_selector('#riotbar-account > div > a')
-        menu = browser.find_element_by_css_selector('#riotbar-explore')   
+        # loginButton = browser.find_element_by_css_selector('#riotbar-account > div > a')
+        loginButton = browser.find_element_by_css_selector('a[data-riotbar-link-id="login"]')
+        # loginButton.click()
+        menu = browser.find_element_by_css_selector('#riotbar-right-content')
         if loginButton.is_enabled() and loginButton.is_displayed():
             loginButton.click()
             # WebDriverWait(browser, 2).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#riotbar-explore'))).click()
         elif menu.is_enabled() and menu.is_displayed():
             menu.click()
             # WebDriverWait(browser, 2).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#riotbar-explore'))).click()
-            WebDriverWait(browser, 2).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#riotbar-navmenu-dropdown > div.riotbar-navmenu-category > a'))).click()
+            # WebDriverWait(browser, 2).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#riotbar-navmenu-dropdown > div.riotbar-navmenu-category > a'))).click()
+            WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'a[data-riotbar-link-id="login"]'))).click()
         else:
             # print(f'loginButton - is_enabled: {loginButton.is_enabled()} / is_displayed: {loginButton.is_displayed()}')
             # print(f'menu - is_enabled: {menu.is_enabled()} / is_displayed: {menu.is_displayed()}')         
@@ -106,8 +112,33 @@ def watchVOD(userConfig):
         t = randint(tLower, tUpper)
         while m < userConfig.getint('Batch Size') and i < len(hrefs):
             browser.execute_script(f"window.open('{hrefs[i]}');")
-            browser.switch_to_window(browser.window_handles[-1])
-            browser.switch_to_default_content()
+            browser.switch_to.window(browser.window_handles[-1])
+            browser.switch_to.default_content()
+            # try:
+            #     if 'No' in browser.find_element_by_id('content').text:
+            #         printTime()
+            #         print(f'[ERROR] Invalid stream link: {hrefs[i]}')
+            #         invalidList.append(hrefs[i])
+            #         browser.close()
+            #         browser.switch_to.window(browser.window_handles[-1])
+            #         i += 1
+            #         continue
+            # except NoSuchElementException:
+            #     pass
+            try:
+                WebDriverWait(browser, 1).until(EC.visibility_of_element_located((By.CLASS_NAME, 'content')))
+                if 'no' in browser.find_element_by_css_selector('div.content').text.lower():
+                    printTime()
+                    print(f'[ERROR] Timed out waiting for video player to load: {hrefs[i]}')
+                    invalidList.append(hrefs[i])
+                    browser.close()
+                    browser.switch_to.window(browser.window_handles[-1])
+                    i += 1
+                    continue
+            except TimeoutException:
+                # printTime()
+                # print(f'[ERROR] Timed out waiting for error bubble: {hrefs[i]}')
+                pass
             try:
                 WebDriverWait(browser, 100).until(EC.frame_to_be_available_and_switch_to_it((By.ID, 'video-player-youtube')))
                 # iframe = browser.find_element_by_id('video-player-youtube')
@@ -133,23 +164,37 @@ def watchVOD(userConfig):
                 except TimeoutException:
                     printTime()
                     print(f'[ERROR] Timed out waiting for mute button. Continuing.')
+                try:
+                    WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Settings"]'))).click()
+                    actions = ActionChains(browser)
+                    time.sleep(0.1)
+                    # browser.implicitly_wait(1)
+                    actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
+                    # 2x playback speed
+                    # actions.send_keys(Keys.ARROW_UP * 5, Keys.ENTER, Keys.ARROW_DOWN * 7, Keys.ENTER, Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
+                    actions.perform()
+                except TimeoutException:
+                    printTime()
+                    print(f'[ERROR] Timed out waiting for settings button. Continuing.')
             try:
-                WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[@aria-label="Settings"]'))).click()
-                actions = ActionChains(browser)
-                time.sleep(0.1)
-                actions.send_keys(Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
-                # 2x playback speed
-                # actions.send_keys(Keys.ARROW_UP * 5, Keys.ENTER, Keys.ARROW_DOWN * 7, Keys.ENTER, Keys.ARROW_DOWN * 5, Keys.ENTER, Keys.ARROW_DOWN * 6, Keys.ARROW_UP, Keys.ENTER)
-                actions.perform()
-            except TimeoutException:
-                printTime()
-                print(f'[ERROR] Timed out waiting for settings button. Continuing.')
-            try:
-                browser.switch_to_default_content()
+                browser.switch_to.default_content()
                 # WebDriverWait(browser, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, 'content')))
+                # browser.implicitly_wait(5)
+                time.sleep(2)
                 WebDriverWait(browser, 5).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.RewardsStatusInformer'))).click()
-                rewardStatus = browser.find_element_by_css_selector('div.status > div.message')
-                if rewardStatus.text.lower() == 'this game is not eligible for watch rewards':
+                WebDriverWait(browser, 5).until(EC.visibility_of_element_located((By.CLASS_NAME, 'show-status')))
+
+                rewardStatus = browser.find_elements_by_css_selector('div.status > div.message')
+                reward = False
+                for messgage in rewardStatus:
+                    if 'is eligible for missions' in messgage.text.lower():
+                        reward = True
+                        printTime()
+                        print(f'[Reward] {hrefs[i]} is eligible for watch rewards.')
+                        break
+                    # elif 'not eligible for Missions credit' in messgage.text.lower():
+                    #     reward = False
+                if not reward:
                     printTime()
                     print(f'[Skipped] {hrefs[i]} is ineligible for watch rewards.')
                     ineligibleList.append(hrefs[i])
