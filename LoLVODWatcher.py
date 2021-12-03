@@ -8,6 +8,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 
 def printTime():
@@ -19,7 +20,7 @@ def watchVOD(userConfig):
         options = webdriver.ChromeOptions()
         prefs = {"profile.managed_default_content_settings.images": 2}
         options.add_experimental_option("prefs", prefs)
-        browser = webdriver.Chrome(chrome_options=options)
+        browser = webdriver.Chrome(executable_path=ChromeDriverManager().install(), chrome_options=options)
     else:
        browser = webdriver.Firefox()
 

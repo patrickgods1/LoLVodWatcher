@@ -21,7 +21,7 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='LoLVODWatcher v0.13',
+          name='LoLVODWatcher v0.14',
           debug=False,
           strip=False,
           upx=True,
@@ -30,5 +30,3 @@ exe = EXE(pyz,
 
 import shutil
 shutil.copyfile('config.ini', f'{DISTPATH}/config.ini')
-shutil.copyfile('chromedriver.exe', f'{DISTPATH}/chromedriver.exe')
-shutil.copyfile('geckodriver.exe', f'{DISTPATH}/geckodriver.exe')

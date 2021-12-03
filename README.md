@@ -27,6 +27,7 @@ These instructions will get you a copy of the project up and running on your loc
 ### Built With
 * [Python 3.6](https://docs.python.org/3/) - The scripting language used.
 * [Selenium](https://selenium-python.readthedocs.io/) - Web crawling automation framework.
+* [Webdriver-Manager](https://github.com/SergeyPirogov/webdriver_manager) - Manager for webdriver version.
 * [Chrome Webdriver](http://chromedriver.chromium.org/downloads) - Webdriver for Chrome browser. Use to control automation with Selenium.
 * [PyInstaller](https://www.pyinstaller.org/) - Used to create executable for release.
 
