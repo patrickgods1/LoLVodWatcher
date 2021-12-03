@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ```
 To run the application:
 ```
-.\LoLVODWatcher.py
+python .\LoLVODWatcher.py
 ```
 
 ### Compiling using PyInstaller
